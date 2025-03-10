@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load django_bootstrap5 %}
+
+{% block title %}Редактирование поста{% endblock %}
+
+{% block content %}
+  <div class="container mt-4">
+    <h2 class="mb-3">Редактирование поста</h2>
+    <div class="card">
+      <div class="card-body">
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          {% bootstrap_form form %}
+          <div class="d-flex justify-content-between">
+            <a href="{% url 'blog:post_detail' pk=post.pk %}" class="btn btn-secondary">Отмена</a>
+            <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}
