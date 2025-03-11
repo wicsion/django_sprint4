@@ -202,8 +202,6 @@ class UserLoginView(LoginView):
         return reverse_lazy('blog:profile', kwargs={'username': username})
 
 
-
-
 class UserDetailView(DetailView):
     model = User
     slug_url_kwarg = 'username'
