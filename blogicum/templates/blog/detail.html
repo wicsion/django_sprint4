@@ -36,24 +36,7 @@
             </a>
           </div>
         {% endif %}
-
-        <!-- Формуляр для комментариев -->
-       <h4>Комментарии:</h4>
-       <div>
-         {% for comment in comments %}
-            <div class="comment">
-              <p><strong>{{ comment.author.username }}</strong>: {{ comment.text }}</p>
-            </div>
-       {% empty %}
-         <p>Нет комментариев.</p>
-         {% endfor %}
-       </div>
-        <h4>Добавить комментарий:</h4>
-        <form method="POST">
-          {% csrf_token %}
-          {{ form.as_p }}
-          <button type="submit" class="btn btn-primary">Отправить комментарий</button>
-        </form>
+        {% include "includes/comments.html" %}
       </div>
     </div>
   </div>
