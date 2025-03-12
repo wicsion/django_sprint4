@@ -48,7 +48,7 @@ def get_published_posts(
         posts = posts.select_related('category', 'location', 'author')
     if use_annotation:
         posts = posts.annotate(comment_count=Count('comments'))
-    return posts  # Сортировка не применяется здесь
+    return posts
 
 
 class PostListView(ListView):
@@ -56,7 +56,7 @@ class PostListView(ListView):
 
     paginate_by = POSTS_ON_PAGE
     template_name = 'blog/index.html'
-    queryset = get_published_posts().order_by('-pub_date')
+    queryset = get_published_posts(use_annotation=True).order_by('-pub_date')
 
 
 @login_required
@@ -154,7 +154,7 @@ class PostDetailView(DetailView):
             Post.objects.select_related('author', 'category', 'location'),
             id=self.kwargs['post_id']
         )
-        # Если пользователь не автор поста, проверяем условия публикации
+
         if post.author != self.request.user and (
             not post.is_published
             or not post.category.is_published
@@ -176,7 +176,6 @@ class PostDetailView(DetailView):
 class CategoryPostListView(ListView):
     """Отображает список постов в категории."""
 
-    model = Post
     paginate_by = POSTS_ON_PAGE
     template_name = "blog/category.html"
 
@@ -235,7 +234,6 @@ class UserLoginView(LoginView):
 class UserDetailView(ListView):
     """Отображает профиль пользователя с его постами."""
 
-    model = Post
     paginate_by = POSTS_ON_PAGE
     template_name = 'blog/profile.html'
     context_object_name = 'posts'
@@ -248,12 +246,22 @@ class UserDetailView(ListView):
         """Возвращает queryset с постами пользователя."""
         user = self.get_user()
         if self.request.user == user:
-            # Для автора показываем все посты, включая неопубликованные
-            queryset = user.posts.all()
+
+            queryset = get_published_posts(
+                user.posts,
+                use_filtering=False,
+                use_select_related=True,
+                use_annotation=True
+            )
         else:
-            # Для других пользователей показываем только опубликованные посты
-            queryset = get_published_posts(user.posts)
-        return queryset.order_by('-pub_date')  # Сортировка по дате публикации
+
+            queryset = get_published_posts(
+                user.posts,
+                use_filtering=True,
+                use_select_related=True,
+                use_annotation=True
+            )
+        return queryset.order_by('-pub_date')
 
     def get_context_data(self, **kwargs):
         """Добавляет профиль пользователя в контекст."""

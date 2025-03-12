@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.db import models
 
 
-MAX_TITLE_LENGTH = 256
+CHARFIELD_MAX_LENGTH = 256
 
 
 class TimestampModel(models.Model):
@@ -22,7 +22,7 @@ class TimestampModel(models.Model):
 class Category(TimestampModel):
     """Категория."""
 
-    title = models.CharField('Заголовок', max_length=MAX_TITLE_LENGTH)
+    title = models.CharField('Заголовок', max_length=CHARFIELD_MAX_LENGTH)
     description = models.TextField('Описание')
     slug = models.SlugField(
         'Идентификатор',
@@ -44,7 +44,7 @@ class Category(TimestampModel):
 class Location(TimestampModel):
     """Местоположение."""
 
-    name = models.CharField('Название места', max_length=MAX_TITLE_LENGTH)
+    name = models.CharField('Название места', max_length=CHARFIELD_MAX_LENGTH)
 
     class Meta:
         verbose_name = 'местоположение'
@@ -58,7 +58,7 @@ class Location(TimestampModel):
 class Post(TimestampModel):
     """Публикация."""
 
-    title = models.CharField('Заголовок', max_length=MAX_TITLE_LENGTH)
+    title = models.CharField('Заголовок', max_length=CHARFIELD_MAX_LENGTH)
     text = models.TextField('Текст')
     image = models.ImageField(
         'Изображение',
