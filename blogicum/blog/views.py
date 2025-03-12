@@ -48,7 +48,7 @@ def get_published_posts(
         posts = posts.select_related('category', 'location', 'author')
     if use_annotation:
         posts = posts.annotate(comment_count=Count('comments'))
-    return posts
+    return posts.order_by('-pub_date')
 
 
 class PostListView(ListView):
@@ -56,7 +56,11 @@ class PostListView(ListView):
 
     paginate_by = POSTS_ON_PAGE
     template_name = 'blog/index.html'
-    queryset = get_published_posts(use_annotation=True).order_by('-pub_date')
+    queryset = get_published_posts(
+        use_filtering=True,
+        use_select_related=True,
+        use_annotation=True
+    )
 
 
 @login_required
@@ -236,7 +240,6 @@ class UserDetailView(ListView):
 
     paginate_by = POSTS_ON_PAGE
     template_name = 'blog/profile.html'
-    context_object_name = 'posts'
 
     def get_user(self):
         """Возвращает пользователя по username."""
@@ -245,23 +248,12 @@ class UserDetailView(ListView):
     def get_queryset(self):
         """Возвращает queryset с постами пользователя."""
         user = self.get_user()
-        if self.request.user == user:
-
-            queryset = get_published_posts(
-                user.posts,
-                use_filtering=False,
-                use_select_related=True,
-                use_annotation=True
-            )
-        else:
-
-            queryset = get_published_posts(
-                user.posts,
-                use_filtering=True,
-                use_select_related=True,
-                use_annotation=True
-            )
-        return queryset.order_by('-pub_date')
+        return get_published_posts(
+            user.posts,
+            use_filtering=self.request.user != user,
+            use_select_related=True,
+            use_annotation=True
+        )
 
     def get_context_data(self, **kwargs):
         """Добавляет профиль пользователя в контекст."""
