@@ -1,16 +1,18 @@
-# from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from django.db import models
 
-# User = get_user_model()
+
+MAX_TITLE_LENGTH = 256
 
 
 class TimestampModel(models.Model):
+    """Абстрактная модель с полями для публикации и времени создания."""
 
     is_published = models.BooleanField(
         'Опубликовано',
         default=True,
-        help_text='Снимите галочку, чтобы скрыть публикацию.')
+        help_text='Снимите галочку, чтобы скрыть публикацию.'
+    )
     created_at = models.DateTimeField('Добавлено', auto_now_add=True)
 
     class Meta:
@@ -20,13 +22,15 @@ class TimestampModel(models.Model):
 class Category(TimestampModel):
     """Категория."""
 
-    title = models.CharField('Заголовок', max_length=256)
+    title = models.CharField('Заголовок', max_length=MAX_TITLE_LENGTH)
     description = models.TextField('Описание')
     slug = models.SlugField(
         'Идентификатор',
-        max_length=64, unique=True,
+        max_length=64,
+        unique=True,
         help_text='Идентификатор страницы для URL; разрешены символы '
-                  'латиницы, цифры, дефис и подчёркивание.')
+                  'латиницы, цифры, дефис и подчёркивание.'
+    )
 
     class Meta:
         verbose_name = 'категория'
@@ -40,7 +44,7 @@ class Category(TimestampModel):
 class Location(TimestampModel):
     """Местоположение."""
 
-    name = models.CharField('Название места', max_length=256)
+    name = models.CharField('Название места', max_length=MAX_TITLE_LENGTH)
 
     class Meta:
         verbose_name = 'местоположение'
@@ -54,14 +58,19 @@ class Location(TimestampModel):
 class Post(TimestampModel):
     """Публикация."""
 
-    title = models.CharField('Заголовок', max_length=256)
+    title = models.CharField('Заголовок', max_length=MAX_TITLE_LENGTH)
     text = models.TextField('Текст')
     image = models.ImageField(
-        'Изображение', upload_to='posts_images', blank=True, null=True)
+        'Изображение',
+        upload_to='posts_images',
+        blank=True,
+        null=True
+    )
     pub_date = models.DateTimeField(
         'Дата и время публикации',
         help_text='Если установить дату и время в будущем — можно делать '
-                  'отложенные публикации.')
+                  'отложенные публикации.'
+    )
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -91,8 +100,8 @@ class Post(TimestampModel):
         return self.title[:50]
 
 
-class Comment(TimestampModel):
-    """Комментарий"""
+class Comment(models.Model):
+    """Комментарий."""
 
     text = models.TextField('Текст')
     author = models.ForeignKey(
@@ -105,6 +114,7 @@ class Comment(TimestampModel):
         on_delete=models.CASCADE,
         verbose_name='Комментируемый пост'
     )
+    created_at = models.DateTimeField('Добавлено', auto_now_add=True)
 
     class Meta:
         verbose_name = 'комментарий'
